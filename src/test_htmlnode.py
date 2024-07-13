@@ -1,6 +1,7 @@
 from lib2to3.pytree import Leaf
 import unittest
 from htmlnode import HTMLNode, LeafNode, ParentNode
+from textnode import TextNode
 
 class TestHTMLNode(unittest.TestCase):
 	def test_to_html_props(self):
@@ -44,7 +45,19 @@ class TestHTMLNode(unittest.TestCase):
 				LeafNode(None, "Normal text"),
 			]
 		) 
-		self.assertEqual(test_node.to_html(), "<p><b>Bold text</b>Normal text<i>Italic text</i>Normal text</p>")
+		self.assertEqual(test_node.to_html(), "<p><b>Bold text</b>Normal text<i>Italic text</i>Normal text</p>")		
+
+	def test_text_node_to_html_node(self):
+		text_node = TextNode("I am bold", "bold")
+		expected_html_node = LeafNode("b", "I am bold")
+		generated_html_node = text_node.text_node_to_html_node()
+		self.assertEqual(generated_html_node, expected_html_node)
+	
+	def test_text_node_to_html_node_link(self):
+		text_node = TextNode("I am image", "image", "https://cpbl.com.tw")
+		expected_html_node = LeafNode("img", "", {"src": "https://cpbl.com.tw"})
+		generated_html_node = text_node.text_node_to_html_node()
+		self.assertEqual(generated_html_node, expected_html_node)
 
 if __name__ == "__main__":
 	unittest.main()
