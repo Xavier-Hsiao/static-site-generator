@@ -1,4 +1,5 @@
 from htmlnode import LeafNode
+import re
 
 text_type_text = "text"
 text_type_bold = "bold"
@@ -59,3 +60,82 @@ class TextNode():
 					split_nodes.append(TextNode(parts[i], text_type))
 			new_nodes.extend(split_nodes)
 		return new_nodes
+	
+	def extract_markdown_images(self, text):
+		matched_list = re.findall(r"!\[(.*?)\]\((.*?)\)", text)
+		return matched_list
+
+	def extract_markdown_links(self, text):
+		matched_list = re.findall(r"\[(.*?)\]\((.*?)\)", text)
+		return matched_list	
+	
+	def split_nodes_link(self, old_nodes):
+		new_nodes = []
+		for old_node in old_nodes:
+			if old_node.text_type is not text_type_text:
+				new_nodes.append(old_node)
+				continue
+
+			links = old_node.extract_markdown_links(old_node.text)
+			original_text = old_node.text
+
+			# Handle invalid links
+			if len(links) == 0:
+				new_nodes.append(old_node)
+				continue
+			
+			for link in links:
+				sections = original_text.split(f"[{link[0]}]({link[1]})", 1)
+				# Handle not-closed link markdown
+				if len(sections) != 2:
+					raise ValueError("Invalid markdown, link markdown not closed")
+				# Make sure that the first part is valid text
+				if sections[0] != "":
+					new_nodes.append(TextNode(sections[0].strip(), text_type_text))
+
+				new_nodes.append(TextNode(link[0], text_type_link, link[1]))
+				original_text = sections[1]
+			
+			# Append the section after the final link
+			if original_text != "":
+				new_nodes.append(TextNode(original_text.strip(), text_type_text))
+		
+		return new_nodes
+	
+	def split_nodes_image(self, old_nodes):
+		new_nodes = []
+		for old_node in old_nodes:
+			if old_node.text_type is not text_type_text:
+				new_nodes.append(old_node)
+				continue
+
+			images = old_node.extract_markdown_links(old_node.text)
+			original_text = old_node.text
+
+			# Handle invalid links
+			if len(images) == 0:
+				new_nodes.append(old_node)
+				continue
+			
+			for image in images:
+				sections = original_text.split(f"![{image[0]}]({image[1]})", 1)
+				# Handle not-closed link markdown
+				if len(sections) != 2:
+					raise ValueError("Invalid markdown, image markdown not closed")
+				# Make sure that the first part is valid text
+				if sections[0] != "":
+					new_nodes.append(TextNode(sections[0].strip(), text_type_text))
+
+				new_nodes.append(TextNode(image[0], text_type_image, image[1]))
+				original_text = sections[1]
+			
+			# Append the section after the final link
+			if original_text != "":
+				new_nodes.append(TextNode(original_text.strip(), text_type_text))
+
+		return new_nodes
+	
+	
+
+
+

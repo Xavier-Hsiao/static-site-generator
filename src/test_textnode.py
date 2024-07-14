@@ -3,8 +3,8 @@ from textnode import (
 	TextNode,    
 	text_type_text,
     text_type_bold,
-    text_type_italic,
-    text_type_code,
+	text_type_link,
+	text_type_image,
 )
 
 class TestTextNode(unittest.TestCase):
@@ -52,6 +52,55 @@ class TestTextNode(unittest.TestCase):
 			TextNode(" plus ", text_type_text),
 			TextNode("doubold", text_type_bold)
 		])
+	
+	def test_extract_image(self):
+		text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+		test_node = TextNode(text, "image")
+		expected = [
+			("rick roll", "https://i.imgur.com/aKaOqIh.gif"), 
+			("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg"),
+		]
+		self.assertEqual(test_node.extract_markdown_images(text), expected)
+	def test_extract_links(self):
+		text = "This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)"
+		test_node = TextNode(text, "link")
+		expected = [
+			("to boot dev", "https://www.boot.dev"), 
+			("to youtube", "https://www.youtube.com/@bootdotdev"),
+		]
+		self.assertEqual(test_node.extract_markdown_links(text), expected)
 
+	def test_split_links(self):
+		test_node = TextNode(
+    		"This is text with a link [to boot dev](https://www.boot.dev) and [to youtube](https://www.youtube.com/@bootdotdev)",
+    		text_type_text,
+		)
+		new_nodes = test_node.split_nodes_link([test_node])
+		self.assertListEqual(new_nodes, [
+			TextNode("This is text with a link", text_type_text),
+			TextNode("to boot dev", text_type_link, "https://www.boot.dev"),
+			TextNode("and", text_type_text),
+			TextNode(
+				"to youtube", text_type_link, "https://www.youtube.com/@bootdotdev"
+			),
+		])
+	def test_split_images(self):
+		test_node = TextNode(
+            "This is text with an ![image](https://i.imgur.com/zjjcJKZ.png) and another ![second image](https://i.imgur.com/3elNhQu.png)",
+            text_type_text,
+        )
+		new_nodes = test_node.split_nodes_image([test_node])
+		self.assertListEqual(
+            [
+                TextNode("This is text with an", text_type_text),
+                TextNode("image", text_type_image, "https://i.imgur.com/zjjcJKZ.png"),
+                TextNode("and another", text_type_text),
+                TextNode(
+                    "second image", text_type_image, "https://i.imgur.com/3elNhQu.png"
+                ),
+            ],
+            new_nodes,
+        )		
+	
 if __name__ == "__main__":
 	unittest.main()
