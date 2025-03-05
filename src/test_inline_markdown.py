@@ -34,3 +34,28 @@ class TestInlineMarkdown(unittest.TestCase):
                 TextNode(" how to deal with it...", TextType.TEXT)
             ]
         )
+    
+    def test_code_symbol(self):
+        node = TextNode("This is text with a `code block` word", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "`", TextType.CODE)
+        self.assertEqual(
+            new_nodes,
+            [
+                TextNode("This is text with a ", TextType.TEXT),
+                TextNode("code block", TextType.CODE),
+                TextNode(" word", TextType.TEXT),
+            ]
+        )
+    
+    def test_double_italic(self):
+        node = TextNode("Counting the _star_ in the sky, it was like _a lullaby_", TextType.TEXT)
+        new_nodes = split_nodes_delimiter([node], "_", TextType.ITALIC)
+        self.assertEqual(
+            new_nodes,
+            [
+                TextNode("Counting the ", TextType.TEXT),
+                TextNode("star", TextType.ITALIC),
+                TextNode(" in the sky, it was like ", TextType.TEXT),
+                TextNode("a lullaby", TextType.ITALIC)
+            ]
+        )
