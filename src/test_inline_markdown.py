@@ -5,6 +5,7 @@ from inline_markdown import (
     extract_markdown_images, 
     extract_markdown_links,
     split_nodes_image,
+    split_nodes_link,
 )
 from textnode import TextNode, TextType
 
@@ -98,6 +99,24 @@ class TestInlineMarkdown(unittest.TestCase):
                 TextNode(" and another ", TextType.TEXT),
                 TextNode(
                     "second image", TextType.IMAGE, "https://i.imgur.com/3elNhQu.png"
+                ),
+            ],
+            new_nodes,
+        )
+    
+    def test_split_links(self):
+        node = TextNode(
+            "I have been to [baseball](https://www.cpbl.com.tw) and [google](https://www.google.com)",
+            TextType.TEXT,
+        )
+        new_nodes = split_nodes_link([node])
+        self.assertListEqual(
+            [
+                TextNode("I have been to ", TextType.TEXT),
+                TextNode("baseball", TextType.LINK, "https://www.cpbl.com.tw"),
+                TextNode(" and ", TextType.TEXT),
+                TextNode(
+                    "google", TextType.LINK, "https://www.google.com"
                 ),
             ],
             new_nodes,

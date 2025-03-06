@@ -90,3 +90,36 @@ def split_nodes_image(old_nodes):
             new_nodes.append(TextNode(original_text, TextType.TEXT))
     
     return new_nodes
+
+def split_nodes_link(old_nodes):
+    new_nodes = []
+    for old_node in old_nodes:
+        if old_node.text_type != TextType.TEXT:
+            new_nodes.append(old_node)
+            continue
+        
+        original_text = old_node.text
+        links = extract_markdown_links(original_text)
+        
+        if len(links) == 0:
+            new_nodes.append(old_node)
+            return old_nodes
+        
+        for link in links:
+            old_node_sections = original_text.split(f"[{link[0]}]({link[1]})", 1)
+            if len(old_node_sections) != 2:
+                raise ValueError("invalid markdown syntax: probably missing closing symbols")
+            if old_node_sections[0] == "":
+                continue
+            new_nodes.append(TextNode(old_node_sections[0], TextType.TEXT))
+            new_nodes.append(TextNode(
+                link[0],
+                TextType.LINK,
+                link[1],
+            ))
+            original_text = old_node_sections[1]
+
+        if original_text != "":
+            new_nodes.append(TextNode(original_text, TextType.TEXT))
+    
+    return new_nodes
