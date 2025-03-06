@@ -1,6 +1,6 @@
 import unittest
 
-from inline_markdown import split_nodes_delimiter
+from inline_markdown import split_nodes_delimiter, extract_markdown_images, extract_markdown_links
 from textnode import TextNode, TextType
 
 class TestInlineMarkdown(unittest.TestCase):
@@ -59,3 +59,26 @@ class TestInlineMarkdown(unittest.TestCase):
                 TextNode("a lullaby", TextType.ITALIC)
             ]
         )
+    
+    def test_extract_markdown_images(self):
+        text = "This is text with a ![rick roll](https://i.imgur.com/aKaOqIh.gif) and ![obi wan](https://i.imgur.com/fJRm4Vk.jpeg)"
+        self.assertEqual(
+            extract_markdown_images(text),
+            [
+                ("rick roll", "https://i.imgur.com/aKaOqIh.gif"),
+                ("obi wan", "https://i.imgur.com/fJRm4Vk.jpeg"),
+            ]
+        )
+    
+    def test_extract_markdown_links(self):
+        text = "This is text with a link [to cpbl website](https://www.cpble.com.tw) and [to youtube](https://www.youtube.com)"
+        self.assertEqual(
+            extract_markdown_links(text),
+            [
+                ("to cpbl website", "https://www.cpble.com.tw"),
+                ("to youtube", "https://www.youtube.com"),
+            ]
+        )
+
+if __name__ == "__main__": 
+    unittest.main()
