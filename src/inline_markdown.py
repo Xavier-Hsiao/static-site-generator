@@ -1,6 +1,15 @@
 import re
 from textnode import TextType, TextNode
 
+def text_to_textnodes(text):
+    nodes = [TextNode(text, TextType.TEXT)]
+    nodes = split_nodes_delimiter(nodes, "**", TextType.BOLD)
+    nodes = split_nodes_delimiter(nodes, "_", TextType.ITALIC)
+    nodes = split_nodes_delimiter(nodes, "`", TextType.CODE)
+    nodes = split_nodes_image(nodes)
+    nodes = split_nodes_link(nodes)
+    return nodes
+
 # create TextNodes from raw markdown strings
 def split_nodes_delimiter(old_nodes, delimiter, text_type):
     new_nodes = []
@@ -67,7 +76,7 @@ def split_nodes_image(old_nodes):
         # Todo: if there are no images -> return a list of the original TextNode
         if len(images) == 0:
             new_nodes.append(old_node)
-            return old_nodes
+            continue
         # Todo: loop throgh the images, use image as the delimiter and split the text into two sections
         for image in images:
             old_node_sections = original_text.split(f"![{image[0]}]({image[1]})", 1)
@@ -103,7 +112,7 @@ def split_nodes_link(old_nodes):
         
         if len(links) == 0:
             new_nodes.append(old_node)
-            return old_nodes
+            continue
         
         for link in links:
             old_node_sections = original_text.split(f"[{link[0]}]({link[1]})", 1)
