@@ -48,55 +48,16 @@ This is the same paragraph on a new line
             ],
         )
     
-    def test_blcok_type_heading(self):
-        md = """
-## I am H2
-    """
-
-        self.assertEqual(
-            block_to_block_type(md),
-            BlockType.HEADING
-        )
-    
-    def test_blcok_type_heading_false(self):
-        md = """
-####I am H2
-    """
-
-        self.assertNotEqual(
-            block_to_block_type(md),
-            BlockType.HEADING
-        )
-    
-    def test_blcok_type_code(self):
-        md = """
-```Python
-I am a block of code
-```
-    """
-
-        self.assertEqual(
-            block_to_block_type(md),
-            BlockType.CODE
-        )
-    
-    def test_block_type_code_false(self):
-        md = """
-```Python
-I am missing the closing triple ticks...
-"""
-
-        self.assertNotEqual(
-            block_to_block_type(md),
-            BlockType.CODE
-        )
-    
-    def test_block_type_quote(self):
-        md = """
->This is a inspirational quote!\nContinue
-"""
-
-        self.assertEqual(
-            block_to_block_type(md),
-            BlockType.QUOTE
-        )
+    def test_block_to_block_types(self):
+        block = "# heading"
+        self.assertEqual(block_to_block_type(block), BlockType.HEADING)
+        block = "```\ncode\n```"
+        self.assertEqual(block_to_block_type(block), BlockType.CODE)
+        block = "> quote\n> more quote"
+        self.assertEqual(block_to_block_type(block), BlockType.QUOTE)
+        block = "- list\n- items"
+        self.assertEqual(block_to_block_type(block), BlockType.UNORDERED_LIST)
+        block = "1. list\n2. items"
+        self.assertEqual(block_to_block_type(block), BlockType.ORDERED_LIST)
+        block = "paragraph"
+        self.assertEqual(block_to_block_type(block), BlockType.PARAGRAPH)

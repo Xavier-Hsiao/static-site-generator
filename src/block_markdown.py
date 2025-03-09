@@ -1,4 +1,5 @@
 from enum import Enum
+from htmlnode import HTMLNode
 import re
 
 
@@ -53,3 +54,45 @@ def block_to_block_type(block):
         return BlockType.ORDERED_LIST 
     else:
         return BlockType.PARAGRAPH
+
+def detect_heading_tag(block):
+    match block:
+        case block.startswith("# "):
+            return "h1"
+        case block.startswith("## "):
+            return "h2"
+        case block.startswith("### "):
+            return "h3"
+        case block.startswith("#### "):
+            return "h4"
+        case block.startswith("##### "):
+            return "h5"
+        case block.startswith("###### "):
+            return "h6"
+        case _:
+            raise ValueError("invalid heading markdown syntax!")
+
+def extract_heading_content(heading_block):
+    # find where the heading markers end and the actual content begins
+    for i, char in enumerate(heading_block):
+        if char != "#" and char != " ":
+            return heading_block[i:].strip()
+    return ""
+
+def create_block_html_node_upon_type(block, type):
+    match type:
+        case BlockType.HEADING:
+            heading_tag = detect_heading_tag(block)
+            return HTMLNode(
+                heading_tag,
+                ...
+            )
+
+def markdown_to_html_node(markdown):
+    # split the markdwon into block strings list
+    blocks = markdown_to_blocks(markdown)
+    for block in blocks:
+        # determine the type of block
+        block_type = block_to_block_type(block)
+        # Todo: based on the type of block, create a new HTMLNode
+        
