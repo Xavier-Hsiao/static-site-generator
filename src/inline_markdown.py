@@ -84,15 +84,15 @@ def split_nodes_image(old_nodes):
             if len(old_node_sections) != 2:
                 raise ValueError("invalid markdown syntax: probably missing closing symbols")
             # Todo: skip leading empty string 
-            if old_node_sections[0] == "":
-                continue
-            new_nodes.append(TextNode(old_node_sections[0], TextType.TEXT))
-            # Todo: append image-type node
-            new_nodes.append(TextNode(
-                image[0],
-                TextType.IMAGE,
-                image[1],
-            ))
+            if old_node_sections[0] != "":
+                new_nodes.append(TextNode(old_node_sections[0], TextType.TEXT))
+            new_nodes.append(
+                TextNode(
+                    image[0],
+                    TextType.IMAGE,
+                    image[1],
+                )
+            )
             # Todo: skip trailing empty string
             original_text = old_node_sections[1]
         if original_text != "":
@@ -118,14 +118,15 @@ def split_nodes_link(old_nodes):
             old_node_sections = original_text.split(f"[{link[0]}]({link[1]})", 1)
             if len(old_node_sections) != 2:
                 raise ValueError("invalid markdown syntax: probably missing closing symbols")
-            if old_node_sections[0] == "":
-                continue
-            new_nodes.append(TextNode(old_node_sections[0], TextType.TEXT))
-            new_nodes.append(TextNode(
-                link[0],
-                TextType.LINK,
-                link[1],
-            ))
+            if old_node_sections[0] != "":
+                new_nodes.append(TextNode(old_node_sections[0], TextType.TEXT))
+            new_nodes.append(
+                TextNode(
+                    link[0],
+                    TextType.LINK,
+                    link[1],
+                )
+            )
             original_text = old_node_sections[1]
 
         if original_text != "":
